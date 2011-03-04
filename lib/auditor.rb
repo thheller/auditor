@@ -1,3 +1,5 @@
+require 'uuid'
+
 module Auditor
   class RackApp
     def initialize(app)
