@@ -1,3 +1,101 @@
 = Auditor
 
-This project rocks and uses MIT-LICENSE.
+Record Model changes with ease.
+
+You wish, I use this in one of my projects and wanted to use
+it in another, so this extraction came to be.
+
+Dont use if you are not me.
+
+Only records changes happening inside an Audit.process block,
+there is a RackApp middleware to include to record any changes
+triggered by any http request.
+
+= Usage
+
+Rails3:
+
+config/application.rb
+
+config.middleware.use '::Auditor::RackApp'
+
+any model that should record changes:
+
+class Membership < ActiveRecord::Base
+  include ::Auditor::Callbacks
+
+end
+
+Save some report info?
+
+class ApplicationController < ...
+
+  before_filter :set_audit_infos
+
+  def set_audit_infos
+    Auditor.current do |audit|
+      audit.info[:method] = request.method
+      audit.info[:ip] = request.ip
+      audit.info[:referer] = request.referer
+      audit.user = current_user
+    end
+  
+    true
+  end
+end
+
+Use in background daemons?
+require 'socket' # not required, but i like hostnames
+
+SomeModel.where('expires_at < ?', Time.now).each do |it|
+  Audit.process do |audit|
+    audit.info[:pid] = Process.pid
+    audit.info[:hostname] = Socket.gethostname
+
+    it.expired!
+  end
+end
+
+
+= Migration
+
+ActiveRecord Models:
+
+Auditor::AuditReport
+Auditor::AuditChanges
+
+class CreateAuditTables < ActiveRecord::Migration
+  def self.up
+    create_table :audit_reports do |t|
+      t.string :uuid, :null => false, :length => 32
+
+      t.string :user_type
+      t.integer :user_id
+
+      t.text :info
+      t.integer :num_changes, :null => false
+
+      t.timestamp :began_at, :null => false
+      t.timestamp :finished_at, :null => false
+    end
+
+    create_table :audit_changes do |t|
+      t.integer :audit_report_id, :null => false
+      
+      t.string :model_type, :null => false
+      t.integer :model_id, :null => false
+
+      t.string :action, :null => false
+
+      t.text :audited_changes
+      
+      t.timestamp :created_at
+    end
+  end
+
+  def self.down
+  end
+end
+
+
+This project rocks anyways and uses MIT-LICENSE.
