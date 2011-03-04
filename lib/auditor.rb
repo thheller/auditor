@@ -115,6 +115,8 @@ module Auditor
     end
 
     def after_update(model)
+      return if model.changes.empty?
+
       ::Auditor.current do |audit|
         audit.record_model_changes(model, 'update', model.changes)
       end
