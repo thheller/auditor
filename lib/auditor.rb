@@ -106,13 +106,13 @@ module Auditor
 
     def after_destroy(model)
       ::Auditor.current do |audit|
-        audit.record_model_changes(model, 'destroy', model.changes)
+        audit.record_model_changes(model, 'destroy', model.attributes)
       end
     end
 
     def after_create(model)
       ::Auditor.current do |audit|
-        audit.record_model_changes(model, 'create', model.changes)
+        audit.record_model_changes(model, 'create', model.attributes)
       end
     end
 
