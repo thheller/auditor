@@ -75,6 +75,12 @@ class CreateAuditTables < ActiveRecord::Migration
       t.text :info
       t.integer :num_changes, :null => false
 
+      t.boolean :success, :null => false
+
+      t.string :error
+      t.text :error_message
+      t.text :error_detail
+
       t.timestamp :began_at, :null => false
       t.timestamp :finished_at, :null => false
     end

@@ -53,6 +53,12 @@ module Auditor
           report.info = info
           report.num_changes = @model_changes.length
 
+          report.success = @error.nil?
+
+          report.error = @error.class.name
+          report.error_message = @error.message
+          report.error_detail = @error.backtrace.join("\n")
+
           @model_changes.each do |model_type, model_id, action, changes|
             report.audit_changes.build(
               :model_type => model_type,
