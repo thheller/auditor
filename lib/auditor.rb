@@ -55,9 +55,11 @@ module Auditor
 
           report.success = @error.nil?
 
-          report.error = @error.class.name
-          report.error_message = @error.message
-          report.error_detail = @error.backtrace.join("\n")
+          if @error
+            report.error = @error.class.name
+            report.error_message = @error.message
+            report.error_detail = @error.backtrace.join("\n")
+          end
 
           @model_changes.each do |model_type, model_id, action, changes|
             report.audit_changes.build(
